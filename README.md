@@ -11,18 +11,6 @@ Aplicação Blazor WebAssembly em .NET 10 para explorar os personagens de Naruto
 | c) Exibir os dados retornados | A ficha mostra nome, imagem, clã, afiliação, patentes ninja por período e a lista completa de jutsus disponíveis. |
 | d) e e) Publicação e entrega | A criação do repositório, a publicação no GitHub e o envio do link ao Google Classroom ficam para entrega manual. |
 
-## Como executar
-
-Instale o SDK do .NET 10. É preciso ter acesso à internet para consultar a API e carregar as imagens. Na primeira execução, o SDK também precisa obter os pacotes do projeto se eles ainda não estiverem no cache.
-
-No PowerShell, execute estes comandos:
-
-```powershell
-cd "C:\Users\lucas\OneDrive\Documentos\vs code uni\homework-Dattebayo API"
-dotnet run
-```
-
-Abra [http://localhost:5055](http://localhost:5055) ou o endereço exibido pelo terminal. Para encerrar, pressione `Ctrl+C`. Para apenas compilar, execute `dotnet build` na mesma pasta.
 
 ## Como usar
 
