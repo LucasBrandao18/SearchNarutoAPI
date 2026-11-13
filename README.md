@@ -26,5 +26,3 @@ Aplicação Blazor WebAssembly em .NET 10 para explorar os personagens de Naruto
 - **`Pages/Home.razor`** consulta a primeira página ao iniciar, reinicia a paginação ao buscar e usa o total retornado para habilitar os botões de navegação. Exibe mensagens para carregamento, busca vazia de resultados, falha de rede, tempo esgotado ou resposta inválida. O botão **Tentar novamente** repete a última consulta que falhou.
 - **`Components/CharacterSheet.razor`** exibe os campos da ficha e identifica dados que a API omitiu. **`Components/Portrait.razor`** usa as URLs de `images` na ordem recebida. Se o servidor bloquear o carregamento direto, solicita ao serviço de miniaturas wsrv.nl uma versão da mesma URL com largura de 600 pixels. Se essa tentativa também falhar, passa à próxima URL da lista. Se nenhuma carregar, mostra **Imagem indisponível**.
 - **`wwwroot/css/app.css`** adapta o catálogo e as fichas para telas pequenas e grandes.
-
-Consulte a [documentação da Dattebayo API](https://api-dattebayo.vercel.app/docs) e um [exemplo de resposta da lista](https://dattebayo-api.onrender.com/characters?limit=1).
