@@ -1,0 +1,31 @@
+@if (index < Images.Count)
+{
+    <img @key="Source" src="@Source" alt="@Name" referrerpolicy="no-referrer"
+         @onerror="NextImage" />
+}
+else
+{
+    <span class="empty-image">Imagem indisponível</span>
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<string> Images { get; set; } = [];
+    [Parameter, EditorRequired] public string Name { get; set; } = "";
+    private int index;
+    private bool thumbnail;
+    private string Source => thumbnail
+        ? $"https://wsrv.nl/?url={Uri.EscapeDataString(Images[index]["https://".Length..])}&w=600"
+        : Images[index];
+
+    private void NextImage()
+    {
+        if (!thumbnail && Images[index].StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            thumbnail = true;
+            return;
+        }
+
+        thumbnail = false;
+        index++;
+    }
+}

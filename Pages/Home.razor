@@ -1,0 +1,134 @@
+@page "/"
+@inject DattebayoClient Api
+
+<PageTitle>Arquivo ninja · Dattebayo</PageTitle>
+
+<header><div class="wrap brand"><span class="seal" aria-hidden="true">忍</span> Dattebayo</div></header>
+<main class="wrap" aria-busy="@busy.ToString().ToLowerInvariant()">
+    <h1>Arquivo ninja</h1>
+    @if (detailId.HasValue)
+    {
+        <button class="secondary" @onclick="Back" disabled="@busy">← Voltar aos resultados</button>
+    }
+    else
+    {
+        <form @onsubmit="Search" @onsubmit:preventDefault>
+            <label for="query">Nome do personagem</label>
+            <div class="search">
+                <input id="query" type="search" placeholder="Ex. Sakura Haruno" @bind="input"
+                       @bind:event="oninput" disabled="@busy" />
+                <button disabled="@busy" type="submit">Buscar</button>
+            </div>
+        </form>
+    }
+
+    @if (busy)
+    {
+        <p class="notice" role="status">Consultando a Dattebayo API…</p>
+    }
+    else if (error is not null)
+    {
+        <div class="notice" role="alert"><p>@error</p><button @onclick="Retry">Tentar novamente</button></div>
+    }
+    else if (detail is not null)
+    {
+        <CharacterSheet @key="detail.Id" Character="detail" />
+    }
+    else if (results.Characters.Count == 0)
+    {
+        <p class="notice" role="status">Nenhum personagem encontrado. Altere o nome ou faça uma busca em branco para ver o catálogo.</p>
+    }
+    else
+    {
+        <div class="summary" role="status">
+            <h2>Personagens</h2>
+            <span>@results.Total @(results.Total == 1 ? "resultado" : "resultados")</span>
+        </div>
+        <div class="grid">
+            @foreach (var character in results.Characters)
+            {
+                <button @key="character.Id" class="card" @onclick="() => Open(character.Id)"
+                        aria-label="@($"Abrir ficha de {character.Name}")">
+                    <span class="photo"><Portrait Images="character.Images" Name="@character.Name" /></span>
+                    <span class="caption">@character.Name <span aria-hidden="true">↗</span></span>
+                </button>
+            }
+        </div>
+        <nav aria-label="Páginas de personagens">
+            <button class="secondary" disabled="@(page == 1)" @onclick="() => List(page - 1)">Anterior</button>
+            <span>Página @(page) de @Pages</span>
+            <button class="secondary" disabled="@(page >= Pages)" @onclick="() => List(page + 1)">Próxima</button>
+        </nav>
+    }
+</main>
+
+@code {
+    private string input = "";
+    private string filter = "";
+    private int page = 1;
+    private int? detailId;
+    private CharacterPage results = new();
+    private Character? detail;
+    private bool busy;
+    private string? error;
+    private int Pages => (int)Math.Ceiling((double)results.Total / DattebayoClient.PageSize);
+
+    protected override Task OnInitializedAsync() => List(1);
+
+    private Task Search()
+    {
+        filter = input.Trim();
+        return List(1);
+    }
+
+    private Task List(int nextPage)
+    {
+        page = nextPage;
+        return Load(async () => { results = await Api.ListAsync(filter, page); });
+    }
+
+    private Task Open(int id)
+    {
+        detailId = id;
+        return Load(async () => { detail = await Api.FindAsync(id); });
+    }
+
+    private void Back()
+    {
+        detailId = null;
+        detail = null;
+        error = null;
+    }
+
+    private Task Retry() => detailId is int id ? Open(id) : List(page);
+
+    private async Task Load(Func<Task> request)
+    {
+        busy = true;
+        error = null;
+        try
+        {
+            await request();
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            error = "A API não encontrou o recurso solicitado.";
+        }
+        catch (HttpRequestException)
+        {
+            error = "Não foi possível acessar a Dattebayo API. Verifique a conexão e tente novamente.";
+        }
+        catch (OperationCanceledException)
+        {
+            error = "A API demorou para responder. Tente novamente.";
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            error = "A resposta da API não pôde ser lida. Tente novamente.";
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+}

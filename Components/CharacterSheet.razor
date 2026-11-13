@@ -1,0 +1,42 @@
+<article class="sheet">
+    <div class="photo large"><Portrait Images="Character.Images" Name="@Character.Name" /></div>
+    <div>
+        <h2>@Character.Name</h2>
+        <dl>
+            <dt>Clã</dt><dd>@Field(Character.Personal?.Clan)</dd>
+            <dt>Afiliação</dt><dd>@Field(Character.Personal?.Affiliation)</dd>
+            <dt>Patente ninja</dt>
+            <dd>
+                @if (Character.Rank?.NinjaRank is { Count: > 0 } ranks)
+                {
+                    <ul>@foreach (var rank in ranks)
+                    {
+                        <li>@rank.Key — @rank.Value</li>
+                    }</ul>
+                }
+                else { <span>Não informada</span> }
+            </dd>
+        </dl>
+    </div>
+    <section class="techniques">
+        <h3>Jutsus</h3>
+        @if (Character.Jutsu.Count > 0)
+        {
+            <ul>@foreach (var technique in Character.Jutsu)
+            {
+                <li>@technique</li>
+            }</ul>
+        }
+        else { <p>Nenhum jutsu informado.</p> }
+    </section>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public Character Character { get; set; } = default!;
+
+    private static string Field(System.Text.Json.JsonElement? field)
+    {
+        var names = field.HasValue ? PersonalInfo.FormatNames(field.Value) : "";
+        return string.IsNullOrWhiteSpace(names) ? "Sem informação" : names;
+    }
+}
